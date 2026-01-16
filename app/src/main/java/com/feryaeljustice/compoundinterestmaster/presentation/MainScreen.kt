@@ -4,40 +4,69 @@
 
 package com.feryaeljustice.compoundinterestmaster.presentation
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.Diamond
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.feryaeljustice.compoundinterestmaster.ui.components.*
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.feryaeljustice.compoundinterestmaster.R
+import com.feryaeljustice.compoundinterestmaster.ui.components.CurrencyInputField
+import com.feryaeljustice.compoundinterestmaster.ui.components.DetailedBreakdownCard
+import com.feryaeljustice.compoundinterestmaster.ui.components.FrequencyDropdown
+import com.feryaeljustice.compoundinterestmaster.ui.components.PercentageInputField
+import com.feryaeljustice.compoundinterestmaster.ui.components.ResultValueCard
+import com.feryaeljustice.compoundinterestmaster.ui.components.YearsInputField
 import com.feryaeljustice.compoundinterestmaster.ui.theme.CompoundInterestMasterTheme
 
 @Composable
-fun MainScreen(viewModel: MainViewModel = hiltViewModel()) {
-    val uiState by viewModel.uiState.collectAsState()
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    viewModel: MainViewModel = hiltViewModel()
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Column(
@@ -112,7 +141,7 @@ fun HeaderSection(modifier: Modifier = Modifier) {
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "💰 Calculadora de Interés Compuesto",
+                text = stringResource(R.string.calc_title),
                 style = MaterialTheme.typography.headlineSmall.copy(
                     fontWeight = FontWeight.Bold,
                     color = Color.White
@@ -121,7 +150,7 @@ fun HeaderSection(modifier: Modifier = Modifier) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
-                text = "Descubre cómo crece tu dinero con el tiempo",
+                text = stringResource(R.string.calc_subtitle),
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = Color.White.copy(alpha = 0.8f)
                 ),
@@ -139,10 +168,11 @@ fun InputForm(
     onYearsChange: (String) -> Unit,
     onFrequencyChange: (com.feryaeljustice.compoundinterestmaster.domain.model.CompoundingFrequency) -> Unit,
     onMonthlyContributionChange: (String) -> Unit,
-    onCalculate: () -> Unit
+    onCalculate: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -154,7 +184,7 @@ fun InputForm(
             CurrencyInputField(
                 value = uiState.initialCapital,
                 onValueChange = onInitialCapitalChange,
-                label = "Capital Inicial (€)",
+                label = stringResource(R.string.label_initial_capital),
                 testTag = "initial_capital_input"
             )
 
@@ -165,14 +195,14 @@ fun InputForm(
                 PercentageInputField(
                     value = uiState.annualRate,
                     onValueChange = onAnnualRateChange,
-                    label = "Tasa Anual (%)",
+                    label = stringResource(R.string.label_annual_rate),
                     testTag = "annual_rate_input",
                     modifier = Modifier.weight(1f)
                 )
                 YearsInputField(
                     value = uiState.years,
                     onValueChange = onYearsChange,
-                    label = "Años",
+                    label = stringResource(R.string.label_years),
                     testTag = "years_input",
                     modifier = Modifier.weight(1f)
                 )
@@ -186,7 +216,7 @@ fun InputForm(
             CurrencyInputField(
                 value = uiState.monthlyContribution,
                 onValueChange = onMonthlyContributionChange,
-                label = "Aportación Mensual (€)",
+                label = stringResource(R.string.label_monthly_contribution),
                 testTag = "monthly_contribution_input"
             )
 
@@ -211,7 +241,7 @@ fun InputForm(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "CALCULAR",
+                        text = stringResource(R.string.btn_calculate),
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
@@ -230,21 +260,22 @@ fun ResultsSection(
     totalInterest: Double,
     initialCapital: Double,
     totalContributions: Double,
-    years: String
+    years: String,
+    modifier: Modifier = Modifier
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
         ResultValueCard(
-            title = "Valor Final",
+            title = stringResource(R.string.result_final_value_title),
             value = finalValue,
-            subtitle = "Total después de $years años",
+            subtitle = stringResource(R.string.result_final_value_subtitle, years),
             icon = Icons.Rounded.Diamond,
             accentColor = Color(0xFF3F51B5)
         )
         
         ResultValueCard(
-            title = "Intereses Ganados",
+            title = stringResource(R.string.result_interest_title),
             value = totalInterest,
-            subtitle = "Ganancias por interés compuesto",
+            subtitle = stringResource(R.string.result_interest_subtitle),
             icon = Icons.Rounded.BarChart,
             accentColor = Color(0xFFE91E63)
         )
@@ -260,7 +291,7 @@ fun ResultsSection(
 
 @Preview(showBackground = true, device = "spec:width=411dp,height=891dp")
 @Composable
-fun MainScreenPreview() {
+private fun MainScreenPreview() {
     CompoundInterestMasterTheme {
         MainScreen()
     }

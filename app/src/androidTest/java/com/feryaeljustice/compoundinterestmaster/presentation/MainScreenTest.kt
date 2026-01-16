@@ -4,13 +4,13 @@
 
 package com.feryaeljustice.compoundinterestmaster.presentation
 
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.performTextClearance
-import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
 import com.feryaeljustice.compoundinterestmaster.MainActivity
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -28,27 +28,21 @@ class MainScreenTest {
 
     @Test
     fun testInputFieldsAndCalculationTrigger() {
-        // Initial Capital field should exist with default value "10000"
+        // Find by tag instead of literal text where possible to avoid i18n issues
         composeTestRule.onNodeWithTag("initial_capital_input").assertExists()
         composeTestRule.onNodeWithText("10000").assertExists()
 
-        // Annual Rate field should exist
         composeTestRule.onNodeWithTag("annual_rate_input").assertExists()
-
-        // Years field should exist
         composeTestRule.onNodeWithTag("years_input").assertExists()
 
-        // Monthly Contribution field should exist with default value "1200"
         composeTestRule.onNodeWithTag("monthly_contribution_input").assertExists()
         composeTestRule.onNodeWithText("1200").assertExists()
 
-        // Button should exist
-        composeTestRule.onNodeWithText("CALCULAR").assertExists()
-
-        // Click button
+        // For buttons and results, we might need to find by tag or content description 
+        // if we want to be 100% i18n proof, but for now we keep finding by text
+        // assuming tests run in default locale (Spanish)
         composeTestRule.onNodeWithText("CALCULAR").performClick()
 
-        // Results should appear
         composeTestRule.onNodeWithText("Valor Final").assertExists()
         composeTestRule.onNodeWithText("Intereses Ganados").assertExists()
         composeTestRule.onNodeWithText("Desglose").assertExists()
@@ -56,14 +50,11 @@ class MainScreenTest {
 
     @Test
     fun testChangeInputsAndRecalculate() {
-        // Clear and type new value for Initial Capital
         composeTestRule.onNodeWithText("10000").performTextClearance()
         composeTestRule.onNodeWithTag("initial_capital_input").performTextInput("5000")
 
-        // Click calculate
         composeTestRule.onNodeWithText("CALCULAR").performClick()
 
-        // Check if results reflect the change (approximate check of existence)
         composeTestRule.onNodeWithText("Valor Final").assertIsDisplayed()
     }
 }

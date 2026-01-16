@@ -32,9 +32,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.feryaeljustice.compoundinterestmaster.R
 import com.feryaeljustice.compoundinterestmaster.ui.theme.CompoundInterestMasterTheme
 import java.text.NumberFormat
 import java.util.Locale
@@ -130,17 +132,17 @@ fun DetailedBreakdownCard(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Desglose",
+                    text = stringResource(R.string.breakdown_title),
                     style = MaterialTheme.typography.titleMedium
                 )
             }
             Spacer(modifier = Modifier.height(24.dp))
             
-            BreakdownRow("Capital inicial:", initialCapital)
+            BreakdownRow(stringResource(R.string.row_initial_capital), initialCapital)
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), thickness = 0.5.dp)
-            BreakdownRow("Aportaciones:", totalContributions)
+            BreakdownRow(stringResource(R.string.row_contributions), totalContributions)
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), thickness = 0.5.dp)
-            BreakdownRow("Intereses:", totalInterest)
+            BreakdownRow(stringResource(R.string.row_interest), totalInterest)
             
             Spacer(modifier = Modifier.height(24.dp))
             Row(
@@ -148,7 +150,7 @@ fun DetailedBreakdownCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "TOTAL:",
+                    text = stringResource(R.string.row_total),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary

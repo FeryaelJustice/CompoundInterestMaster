@@ -1,0 +1,39 @@
+<!--
+  ~ Copyright (c) 2026 Feryael Justice. Todos los derechos reservados.
+  -->
+
+<resources>
+    <!-- Main Screen -->
+    <string name="calc_title">💰 Compound Interest Calculator</string>
+    <string name="calc_subtitle">Discover how your money grows over time</string>
+    <string name="btn_calculate">CALCULATE</string>
+    <string name="results_header">PROJECTED RESULTS</string>
+    <string name="breakdown_header">YEARLY BREAKDOWN</string>
+
+    <!-- Financial Input Fields -->
+    <string name="label_initial_capital">Initial Capital (€)</string>
+    <string name="label_annual_rate">Annual Rate (%)</string>
+    <string name="label_years">Years</string>
+    <string name="label_monthly_contribution">Monthly Contribution (€)</string>
+    <string name="label_compounding_frequency">Compounding Frequency</string>
+
+    <!-- Result Components -->
+    <string name="result_final_value_title">Final Value</string>
+    <string name="result_interest_title">Interest Earned</string>
+    <string name="result_final_value_subtitle">Total after %1$s years</string>
+    <string name="result_interest_subtitle">Earnings from compound interest</string>
+    <string name="breakdown_title">Breakdown</string>
+    <string name="row_initial_capital">Initial capital:</string>
+    <string name="row_contributions">Contributions:</string>
+    <string name="row_interest">Interest:</string>
+    <string name="row_total">TOTAL:</string>
+    <string name="table_header_year">YEAR</string>
+    <string name="table_header_balance">BALANCE</string>
+
+    <!-- Frequencies -->
+    <string name="freq_daily">Daily</string>
+    <string name="freq_monthly">Monthly</string>
+    <string name="freq_quarterly">Quarterly</string>
+    <string name="freq_semiannually">Semiannually</string>
+    <string name="freq_annually">Annually</string>
+</resources>

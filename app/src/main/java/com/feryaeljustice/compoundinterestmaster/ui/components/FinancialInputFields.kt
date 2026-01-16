@@ -1,23 +1,33 @@
-/*
- * Copyright (c) 2026 Feryael Justice. Todos los derechos reservados.
- */
-
 package com.feryaeljustice.compoundinterestmaster.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Euro
 import androidx.compose.material.icons.rounded.Percent
 import androidx.compose.material.icons.rounded.Schedule
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import com.feryaeljustice.compoundinterestmaster.R
 import com.feryaeljustice.compoundinterestmaster.domain.model.CompoundingFrequency
 import com.feryaeljustice.compoundinterestmaster.ui.theme.CompoundInterestMasterTheme
 
@@ -26,16 +36,15 @@ fun CurrencyInputField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    testTag: String,
     modifier: Modifier = Modifier,
+    testTag: String = ""
 ) {
     ExpressiveTextField(
         value = value,
         onValueChange = onValueChange,
         label = label,
-        testTag = testTag,
         leadingIcon = Icons.Rounded.Euro,
-        modifier = modifier,
+        modifier = modifier.testTag(testTag)
     )
 }
 
@@ -44,16 +53,15 @@ fun PercentageInputField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    testTag: String,
     modifier: Modifier = Modifier,
+    testTag: String = ""
 ) {
     ExpressiveTextField(
         value = value,
         onValueChange = onValueChange,
         label = label,
-        testTag = testTag,
         leadingIcon = Icons.Rounded.Percent,
-        modifier = modifier
+        modifier = modifier.testTag(testTag)
     )
 }
 
@@ -62,16 +70,15 @@ fun YearsInputField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    testTag: String,
     modifier: Modifier = Modifier,
+    testTag: String = ""
 ) {
     ExpressiveTextField(
         value = value,
         onValueChange = onValueChange,
         label = label,
-        testTag = testTag,
         leadingIcon = Icons.Rounded.Schedule,
-        modifier = modifier
+        modifier = modifier.testTag(testTag)
     )
 }
 
@@ -91,10 +98,10 @@ fun FrequencyDropdown(
         modifier = modifier.fillMaxWidth()
     ) {
         OutlinedTextField(
-            value = selectedFrequency.name.lowercase().replaceFirstChar { it.uppercase() },
+            value = stringResource(id = selectedFrequency.displayResId),
             onValueChange = {},
             readOnly = true,
-            label = { Text("Compounding Frequency") },
+            label = { Text(stringResource(R.string.label_compounding_frequency)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true)
@@ -112,7 +119,7 @@ fun FrequencyDropdown(
         ) {
             frequencies.forEach { frequency ->
                 DropdownMenuItem(
-                    text = { Text(frequency.name.lowercase().replaceFirstChar { it.uppercase() }) },
+                    text = { Text(stringResource(id = frequency.displayResId)) },
                     onClick = {
                         onFrequencyChange(frequency)
                         expanded = false
@@ -129,7 +136,6 @@ fun ExpressiveTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    testTag: String,
     leadingIcon: ImageVector,
     modifier: Modifier = Modifier
 ) {
@@ -144,7 +150,7 @@ fun ExpressiveTextField(
                 tint = MaterialTheme.colorScheme.primary
             )
         },
-        modifier = modifier.fillMaxWidth().testTag(testTag),
+        modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.large,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         colors = OutlinedTextFieldDefaults.colors(
@@ -161,6 +167,6 @@ fun ExpressiveTextField(
 @Composable
 private fun InputFieldsPreview() {
     CompoundInterestMasterTheme {
-        CurrencyInputField(value = "1000", onValueChange = {}, label = "Initial Investment", testTag = "")
+        CurrencyInputField(value = "1000", onValueChange = {}, label = "Initial Investment")
     }
 }

@@ -3,5 +3,39 @@
   -->
 
 <resources>
-    <string name="app_name">Compound Interest Master</string>
+    <string name="app_name" translatable="false">Compound Interest Master</string>
+
+    <!-- Main Screen -->
+    <string name="calc_title">💰 Calculadora de Interés Compuesto</string>
+    <string name="calc_subtitle">Descubre cómo crece tu dinero con el tiempo</string>
+    <string name="btn_calculate">CALCULAR</string>
+    <string name="results_header">RESULTADOS PROYECTADOS</string>
+    <string name="breakdown_header">DETALLE POR AÑO</string>
+
+    <!-- Financial Input Fields -->
+    <string name="label_initial_capital">Capital Inicial (€)</string>
+    <string name="label_annual_rate">Tasa Anual (%)</string>
+    <string name="label_years">Años</string>
+    <string name="label_monthly_contribution">Aportación Mensual (€)</string>
+    <string name="label_compounding_frequency">Frecuencia de Capitalización</string>
+
+    <!-- Result Components -->
+    <string name="result_final_value_title">Valor Final</string>
+    <string name="result_interest_title">Intereses Ganados</string>
+    <string name="result_final_value_subtitle">Total después de %1$s años</string>
+    <string name="result_interest_subtitle">Ganancias por interés compuesto</string>
+    <string name="breakdown_title">Desglose</string>
+    <string name="row_initial_capital">Capital inicial:</string>
+    <string name="row_contributions">Aportaciones:</string>
+    <string name="row_interest">Intereses:</string>
+    <string name="row_total">TOTAL:</string>
+    <string name="table_header_year">AÑO</string>
+    <string name="table_header_balance">BALANCE</string>
+
+    <!-- Frequencies -->
+    <string name="freq_daily">Diaria</string>
+    <string name="freq_monthly">Mensual</string>
+    <string name="freq_quarterly">Trimestral</string>
+    <string name="freq_semiannually">Semestral</string>
+    <string name="freq_annually">Anual</string>
 </resources>
