@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2026 Feryael Justice. Todos los derechos reservados.
+  -->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Rising Chart Bars -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M32,65 h8 v15 h-8 z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M44,50 h8 v30 h-8 z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M56,35 h8 v45 h-8 z" />
+
+    <!-- Growth Arrow -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,72 L76,26 L76,40 L80,40 L80,22 L62,22 L62,26 L76,26 Z" />
+
+    <!-- Coin Symbol -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M78,65 c0,6.6 -5.4,12 -12,12 s-12,-5.4 -12,-12 s5.4,-12 12,-12 s12,5.4 12,12 z M67,58 h-2 v2 c-1.1,0.1 -2,0.8 -2,1.8 s0.9,1.7 2,1.8 v2.4 c-0.6,-0.1 -1.1,-0.4 -1.4,-0.8 l-1.6,1.2 c0.6,1 1.6,1.7 3,1.9 v2 h2 v-2 c1.1,-0.1 2,-0.9 2,-2 s-0.9,-1.7 -2,-1.8 v-2.4 c0.7,0.1 1.2,0.5 1.5,0.9 l1.5,-1.2 c-0.6,-1 -1.6,-1.7 -3,-1.9 v-2 z M65,64.4 v-1.8 c0.3,0 0.6,0.1 0.8,0.3 c0.2,0.2 0.2,0.4 0.2,0.6 s-0.1,0.5 -0.2,0.6 c-0.2,0.2 -0.5,0.3 -0.8,0.3 z M67,65.6 v1.9 c-0.3,-0.1 -0.6,-0.2 -0.8,-0.4 c-0.2,-0.2 -0.2,-0.4 -0.2,-0.7 c0,-0.3 0.1,-0.5 0.2,-0.6 c0.2,-0.1 0.5,-0.2 0.8,-0.2 z" />
+
+</vector>

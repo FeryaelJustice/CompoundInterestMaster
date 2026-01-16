@@ -1,0 +1,7 @@
+<!--
+  ~ Copyright (c) 2026 Feryael Justice. Todos los derechos reservados.
+  -->
+
+<resources>
+    <style name="Theme.CompoundInterestMaster" parent="Theme.MaterialComponents.Light" />
+</resources>
