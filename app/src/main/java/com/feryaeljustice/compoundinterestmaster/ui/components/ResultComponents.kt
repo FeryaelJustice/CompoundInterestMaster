@@ -48,7 +48,9 @@ fun ResultValueCard(
     subtitle: String,
     icon: ImageVector,
     accentColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isCurrency: Boolean = true,
+    suffix: String = ""
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -89,7 +91,7 @@ fun ResultValueCard(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = formatCurrency(value),
+                    text = if (isCurrency) formatCurrency(value) else "${String.format(Locale.getDefault(), "%.2f", value)}$suffix",
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = accentColor

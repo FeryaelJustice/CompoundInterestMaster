@@ -28,6 +28,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BarChart
 import androidx.compose.material.icons.rounded.Diamond
+import androidx.compose.material.icons.rounded.Percent
+import androidx.compose.material.icons.rounded.Savings
+import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -50,13 +53,21 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.compoundinterestmaster.R
+import com.feryaeljustice.compoundinterestmaster.domain.model.CalculationType
+import com.feryaeljustice.compoundinterestmaster.domain.model.CompoundingFrequency
+import com.feryaeljustice.compoundinterestmaster.domain.model.ContributionTiming
+import com.feryaeljustice.compoundinterestmaster.domain.model.InterestCalculationResult
+import com.feryaeljustice.compoundinterestmaster.ui.components.CalculationTypeSelector
 import com.feryaeljustice.compoundinterestmaster.ui.components.CurrencyInputField
 import com.feryaeljustice.compoundinterestmaster.ui.components.DetailedBreakdownCard
 import com.feryaeljustice.compoundinterestmaster.ui.components.FrequencyDropdown
+import com.feryaeljustice.compoundinterestmaster.ui.components.InterestChart
 import com.feryaeljustice.compoundinterestmaster.ui.components.PercentageInputField
 import com.feryaeljustice.compoundinterestmaster.ui.components.ResultValueCard
+import com.feryaeljustice.compoundinterestmaster.ui.components.TimingSelector
 import com.feryaeljustice.compoundinterestmaster.ui.components.YearsInputField
 import com.feryaeljustice.compoundinterestmaster.ui.theme.CompoundInterestMasterTheme
+import kotlinx.collections.immutable.toImmutableList
 
 @Composable
 fun MainScreen(
@@ -86,11 +97,14 @@ fun MainScreen(
                 // Form Section
                 InputForm(
                     uiState = uiState,
+                    onCalculationTypeChange = viewModel::onCalculationTypeChange,
                     onInitialCapitalChange = viewModel::onInitialCapitalChange,
                     onAnnualRateChange = viewModel::onAnnualRateChange,
                     onYearsChange = viewModel::onYearsChange,
+                    onTargetAmountChange = viewModel::onTargetAmountChange,
                     onFrequencyChange = viewModel::onCompoundingFrequencyChange,
-                    onMonthlyContributionChange = viewModel::onMonthlyContributionChange,
+                    onPeriodicContributionChange = viewModel::onPeriodicContributionChange,
+                    onTimingChange = viewModel::onContributionTimingChange,
                     onCalculate = viewModel::calculate
                 )
 
@@ -105,17 +119,15 @@ fun MainScreen(
                     ),
                     exit = fadeOut() + shrinkVertically()
                 ) {
-                    uiState.result?.let { result ->
+                    uiState.result?.let { res ->
                         ResultsSection(
-                            finalValue = result.finalValue,
-                            totalInterest = result.totalInterest,
-                            initialCapital = result.initialCapital,
-                            totalContributions = result.totalContributions,
+                            result = res,
+                            calculationType = uiState.calculationType,
                             years = uiState.years
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
@@ -163,11 +175,14 @@ fun HeaderSection(modifier: Modifier = Modifier) {
 @Composable
 fun InputForm(
     uiState: MainUiState,
+    onCalculationTypeChange: (CalculationType) -> Unit,
     onInitialCapitalChange: (String) -> Unit,
     onAnnualRateChange: (String) -> Unit,
     onYearsChange: (String) -> Unit,
-    onFrequencyChange: (com.feryaeljustice.compoundinterestmaster.domain.model.CompoundingFrequency) -> Unit,
-    onMonthlyContributionChange: (String) -> Unit,
+    onTargetAmountChange: (String) -> Unit,
+    onFrequencyChange: (CompoundingFrequency) -> Unit,
+    onPeriodicContributionChange: (String) -> Unit,
+    onTimingChange: (ContributionTiming) -> Unit,
     onCalculate: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -181,6 +196,11 @@ fun InputForm(
             modifier = Modifier.padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            CalculationTypeSelector(
+                selectedType = uiState.calculationType,
+                onTypeChange = onCalculationTypeChange
+            )
+
             CurrencyInputField(
                 value = uiState.initialCapital,
                 onValueChange = onInitialCapitalChange,
@@ -188,24 +208,41 @@ fun InputForm(
                 testTag = "initial_capital_input"
             )
 
+            // Mostrar Objetivo de Ahorro si no es FUTURE_VALUE
+            if (uiState.calculationType != CalculationType.FUTURE_VALUE) {
+                CurrencyInputField(
+                    value = uiState.targetAmount,
+                    onValueChange = onTargetAmountChange,
+                    label = stringResource(R.string.label_target_amount),
+                    testTag = "target_amount_input"
+                )
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                PercentageInputField(
-                    value = uiState.annualRate,
-                    onValueChange = onAnnualRateChange,
-                    label = stringResource(R.string.label_annual_rate),
-                    testTag = "annual_rate_input",
-                    modifier = Modifier.weight(1f)
-                )
-                YearsInputField(
-                    value = uiState.years,
-                    onValueChange = onYearsChange,
-                    label = stringResource(R.string.label_years),
-                    testTag = "years_input",
-                    modifier = Modifier.weight(1f)
-                )
+                // Mostrar Tasa Anual si no es REQUIRED_RATE
+                if (uiState.calculationType != CalculationType.REQUIRED_RATE) {
+                    PercentageInputField(
+                        value = uiState.annualRate,
+                        onValueChange = onAnnualRateChange,
+                        label = stringResource(R.string.label_annual_rate),
+                        testTag = "annual_rate_input",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                // Mostrar Años si no es TIME_TO_GOAL
+                if (uiState.calculationType != CalculationType.TIME_TO_GOAL) {
+                    YearsInputField(
+                        value = uiState.years,
+                        onValueChange = onYearsChange,
+                        label = stringResource(R.string.label_years),
+                        testTag = "years_input",
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
 
             FrequencyDropdown(
@@ -213,11 +250,19 @@ fun InputForm(
                 onFrequencyChange = onFrequencyChange
             )
 
-            CurrencyInputField(
-                value = uiState.monthlyContribution,
-                onValueChange = onMonthlyContributionChange,
-                label = stringResource(R.string.label_monthly_contribution),
-                testTag = "monthly_contribution_input"
+            // Mostrar Aportación Mensual si no es REQUIRED_CONTRIBUTION
+            if (uiState.calculationType != CalculationType.REQUIRED_CONTRIBUTION) {
+                CurrencyInputField(
+                    value = uiState.periodicContribution,
+                    onValueChange = onPeriodicContributionChange,
+                    label = stringResource(R.string.label_periodic_contribution),
+                    testTag = "monthly_contribution_input"
+                )
+            }
+
+            TimingSelector(
+                selectedTiming = uiState.contributionTiming,
+                onTimingChange = onTimingChange
             )
 
             Button(
@@ -256,36 +301,73 @@ fun InputForm(
 
 @Composable
 fun ResultsSection(
-    finalValue: Double,
-    totalInterest: Double,
-    initialCapital: Double,
-    totalContributions: Double,
+    result: InterestCalculationResult,
+    calculationType: CalculationType,
     years: String,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        ResultValueCard(
-            title = stringResource(R.string.result_final_value_title),
-            value = finalValue,
-            subtitle = stringResource(R.string.result_final_value_subtitle, years),
-            icon = Icons.Rounded.Diamond,
-            accentColor = Color(0xFF3F51B5)
-        )
         
+        // Tarjeta de Resultado Principal Dinámica
+        when (calculationType) {
+            CalculationType.FUTURE_VALUE -> {
+                ResultValueCard(
+                    title = stringResource(R.string.result_final_value_title),
+                    value = result.finalValue,
+                    subtitle = stringResource(R.string.result_final_value_subtitle, years.toIntOrNull() ?: 0),
+                    icon = Icons.Rounded.Diamond,
+                    accentColor = Color(0xFF3F51B5)
+                )
+            }
+            CalculationType.TIME_TO_GOAL -> {
+                val totalYears = result.yearlyBreakdown.size
+                ResultValueCard(
+                    title = stringResource(R.string.label_years),
+                    value = totalYears.toDouble(),
+                    subtitle = stringResource(R.string.type_time_to_goal),
+                    icon = Icons.Rounded.Timer,
+                    accentColor = Color(0xFF3F51B5),
+                    isCurrency = false
+                )
+            }
+            CalculationType.REQUIRED_CONTRIBUTION -> {
+                ResultValueCard(
+                    title = stringResource(R.string.label_periodic_contribution),
+                    value = (result.totalContributions / (result.yearlyBreakdown.size * 12)),
+                    subtitle = stringResource(R.string.type_required_contribution),
+                    icon = Icons.Rounded.Savings,
+                    accentColor = Color(0xFF3F51B5)
+                )
+            }
+            CalculationType.REQUIRED_RATE -> {
+                ResultValueCard(
+                    title = stringResource(R.string.label_annual_rate),
+                    value = result.totalInterest, // Reutilizado como tasa en el UseCase
+                    subtitle = stringResource(R.string.type_required_rate),
+                    icon = Icons.Rounded.Percent,
+                    accentColor = Color(0xFF3F51B5),
+                    isCurrency = false,
+                    suffix = "%"
+                )
+            }
+        }
+
         ResultValueCard(
             title = stringResource(R.string.result_interest_title),
-            value = totalInterest,
+            value = if (calculationType == CalculationType.REQUIRED_RATE) result.finalValue - result.initialCapital - result.totalContributions else result.totalInterest,
             subtitle = stringResource(R.string.result_interest_subtitle),
             icon = Icons.Rounded.BarChart,
             accentColor = Color(0xFFE91E63)
         )
-        
+
         DetailedBreakdownCard(
-            initialCapital = initialCapital,
-            totalContributions = totalContributions,
-            totalInterest = totalInterest,
-            finalValue = finalValue
+            initialCapital = result.initialCapital,
+            totalContributions = result.totalContributions,
+            totalInterest = if (calculationType == CalculationType.REQUIRED_RATE) result.finalValue - result.initialCapital - result.totalContributions else result.totalInterest,
+            finalValue = result.finalValue
         )
+
+        InterestChart(yearlyBreakdown = result.yearlyBreakdown.toImmutableList())
     }
 }
 

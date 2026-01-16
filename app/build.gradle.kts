@@ -65,6 +65,7 @@ dependencies {
     implementation(libs.google.android.material)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.collections.immutable)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -86,4 +87,7 @@ dependencies {
 
     kspTest(libs.hilt.compiler)
     kspAndroidTest(libs.hilt.android.compiler)
+
+    implementation(libs.vico.compose)
+    implementation(libs.vico.compose.m3)
 }

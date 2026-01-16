@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2026 Feryael Justice. Todos los derechos reservados.
+ */
+
 package com.feryaeljustice.compoundinterestmaster.ui.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,10 +30,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import com.feryaeljustice.compoundinterestmaster.R
+import com.feryaeljustice.compoundinterestmaster.domain.model.CalculationType
 import com.feryaeljustice.compoundinterestmaster.domain.model.CompoundingFrequency
-import com.feryaeljustice.compoundinterestmaster.ui.theme.CompoundInterestMasterTheme
+import com.feryaeljustice.compoundinterestmaster.domain.model.ContributionTiming
 
 @Composable
 fun CurrencyInputField(
@@ -84,13 +88,62 @@ fun YearsInputField(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun CalculationTypeSelector(
+    selectedType: CalculationType,
+    onTypeChange: (CalculationType) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val types = CalculationType.entries
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier.fillMaxWidth()
+    ) {
+        OutlinedTextField(
+            value = stringResource(id = selectedType.displayResId),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(R.string.label_calculation_type)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true)
+                .fillMaxWidth()
+                .testTag("calculation_type_dropdown"),
+            shape = MaterialTheme.shapes.large,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            )
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            types.forEach { type ->
+                DropdownMenuItem(
+                    text = { Text(stringResource(id = type.displayResId)) },
+                    onClick = {
+                        onTypeChange(type)
+                        expanded = false
+                    },
+                    modifier = Modifier.testTag("type_item_${type.name}")
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun FrequencyDropdown(
     selectedFrequency: CompoundingFrequency,
     onFrequencyChange: (CompoundingFrequency) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val frequencies = CompoundingFrequency.entries.toTypedArray()
+    val frequencies = CompoundingFrequency.entries
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -131,6 +184,55 @@ fun FrequencyDropdown(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TimingSelector(
+    selectedTiming: ContributionTiming,
+    onTimingChange: (ContributionTiming) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val timings = ContributionTiming.entries
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier.fillMaxWidth()
+    ) {
+        OutlinedTextField(
+            value = stringResource(id = selectedTiming.displayResId),
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(R.string.label_contribution_timing)) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true)
+                .fillMaxWidth()
+                .testTag("timing_dropdown"),
+            shape = MaterialTheme.shapes.large,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            )
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            timings.forEach { timing ->
+                DropdownMenuItem(
+                    text = { Text(stringResource(id = timing.displayResId)) },
+                    onClick = {
+                        onTimingChange(timing)
+                        expanded = false
+                    },
+                    modifier = Modifier.testTag("timing_item_${timing.name}")
+                )
+            }
+        }
+    }
+}
+
 @Composable
 fun ExpressiveTextField(
     value: String,
@@ -161,12 +263,4 @@ fun ExpressiveTextField(
         ),
         singleLine = true
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun InputFieldsPreview() {
-    CompoundInterestMasterTheme {
-        CurrencyInputField(value = "1000", onValueChange = {}, label = "Initial Investment")
-    }
 }

@@ -6,36 +6,50 @@
     <string name="app_name" translatable="false">Compound Interest Master</string>
 
     <!-- Main Screen -->
-    <string name="calc_title">💰 Calculadora de Interés Compuesto</string>
-    <string name="calc_subtitle">Descubre cómo crece tu dinero con el tiempo</string>
+    <string name="calc_title">💰 Calculadora Financiera</string>
+    <string name="calc_subtitle">Proyecta y planifica tus metas de ahorro</string>
     <string name="btn_calculate">CALCULAR</string>
     <string name="results_header">RESULTADOS PROYECTADOS</string>
     <string name="breakdown_header">DETALLE POR AÑO</string>
+    <string name="chart_title">Crecimiento vs Aportaciones</string>
+
+    <!-- Calculation Types -->
+    <string name="type_future_value">¿Cuánto puedo ahorrar?</string>
+    <string name="type_time_to_goal">¿Cuánto tardaré en alcanzar mi objetivo?</string>
+    <string name="type_required_contribution">¿Cuánto necesito ahorrar cada periodo?</string>
+    <string name="type_required_rate">¿Qué porcentaje de interés necesito?</string>
 
     <!-- Financial Input Fields -->
     <string name="label_initial_capital">Capital Inicial (€)</string>
+    <string name="label_target_amount">Objetivo de Ahorro (€)</string>
     <string name="label_annual_rate">Tasa Anual (%)</string>
     <string name="label_years">Años</string>
-    <string name="label_monthly_contribution">Aportación Mensual (€)</string>
+    <string name="label_periodic_contribution">Aportación por Periodo (€)</string>
     <string name="label_compounding_frequency">Frecuencia de Capitalización</string>
+    <string name="label_contribution_timing">Momento de la Aportación</string>
+    <string name="label_calculation_type">¿Qué quieres calcular?</string>
+
+    <!-- Timing Options -->
+    <string name="timing_start">Inicio del periodo</string>
+    <string name="timing_end">Final del periodo</string>
 
     <!-- Result Components -->
     <string name="result_final_value_title">Valor Final</string>
     <string name="result_interest_title">Intereses Ganados</string>
-    <string name="result_final_value_subtitle">Total después de %1$s años</string>
+    <string name="result_final_value_subtitle">Total después de %1$d años</string>
     <string name="result_interest_subtitle">Ganancias por interés compuesto</string>
     <string name="breakdown_title">Desglose</string>
     <string name="row_initial_capital">Capital inicial:</string>
     <string name="row_contributions">Aportaciones:</string>
     <string name="row_interest">Intereses:</string>
     <string name="row_total">TOTAL:</string>
+    <string name="row_total_without_interest">Total sin intereses:</string>
     <string name="table_header_year">AÑO</string>
     <string name="table_header_balance">BALANCE</string>
 
     <!-- Frequencies -->
-    <string name="freq_daily">Diaria</string>
+    <string name="freq_weekly">Semanalmente</string>
+    <string name="freq_biweekly">Bi-Semanalmente</string>
     <string name="freq_monthly">Mensual</string>
-    <string name="freq_quarterly">Trimestral</string>
-    <string name="freq_semiannually">Semestral</string>
     <string name="freq_annually">Anual</string>
 </resources>
