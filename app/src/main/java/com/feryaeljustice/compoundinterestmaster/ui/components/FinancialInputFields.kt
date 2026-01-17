@@ -7,7 +7,8 @@ package com.feryaeljustice.compoundinterestmaster.ui.components
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Euro
+import androidx.compose.material.icons.rounded.Language
+import androidx.compose.material.icons.rounded.Money
 import androidx.compose.material.icons.rounded.Percent
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material3.DropdownMenuItem
@@ -31,6 +32,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import com.feryaeljustice.compoundinterestmaster.R
+import com.feryaeljustice.compoundinterestmaster.domain.model.CICurrency
 import com.feryaeljustice.compoundinterestmaster.domain.model.CalculationType
 import com.feryaeljustice.compoundinterestmaster.domain.model.CompoundingFrequency
 import com.feryaeljustice.compoundinterestmaster.domain.model.ContributionTiming
@@ -41,13 +43,13 @@ fun CurrencyInputField(
     onValueChange: (String) -> Unit,
     label: String,
     modifier: Modifier = Modifier,
-    testTag: String = ""
+    testTag: String = "",
 ) {
     ExpressiveTextField(
         value = value,
         onValueChange = onValueChange,
         label = label,
-        leadingIcon = Icons.Rounded.Euro,
+        leadingIcon = Icons.Rounded.Money, // Idealmente cambiaríamos el icono según la moneda si fuera dinámico
         modifier = modifier.testTag(testTag)
     )
 }
@@ -227,6 +229,56 @@ fun TimingSelector(
                         expanded = false
                     },
                     modifier = Modifier.testTag("timing_item_${timing.name}")
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CurrencySelector(
+    selectedCurrency: CICurrency,
+    currencies: List<CICurrency>,
+    onCurrencyChange: (CICurrency) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = modifier.fillMaxWidth()
+    ) {
+        OutlinedTextField(
+            value = "${selectedCurrency.curName} (${selectedCurrency.curSymbol})",
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Moneda") }, // Idealmente a string resource
+            leadingIcon = { Icon(Icons.Rounded.Language, contentDescription = null) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable, true)
+                .fillMaxWidth()
+                .testTag("currency_dropdown"),
+            shape = MaterialTheme.shapes.large,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+            )
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            currencies.forEach { currency ->
+                DropdownMenuItem(
+                    text = { Text("${currency.curName} (${currency.curSymbol})") },
+                    onClick = {
+                        onCurrencyChange(currency)
+                        expanded = false
+                    },
+                    modifier = Modifier.testTag("currency_item_${currency.curSymbol}")
                 )
             }
         }

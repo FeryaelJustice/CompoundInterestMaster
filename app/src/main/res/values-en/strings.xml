@@ -18,11 +18,11 @@
     <string name="type_required_rate">What interest rate do I need?</string>
 
     <!-- Financial Input Fields -->
-    <string name="label_initial_capital">Initial Capital</string>
-    <string name="label_target_amount">Savings Goal</string>
+    <string name="label_initial_capital">Initial Capital (%1$s)</string>
+    <string name="label_target_amount">Savings Goal (%1$s)</string>
     <string name="label_annual_rate">Annual Rate (%)</string>
     <string name="label_years">Years</string>
-    <string name="label_periodic_contribution">Periodic Contribution</string>
+    <string name="label_periodic_contribution">Periodic Contribution (%1$s)</string>
     <string name="label_compounding_frequency">Compounding Frequency</string>
     <string name="label_contribution_timing">Contribution Timing</string>
     <string name="label_calculation_type">What do you want to calculate?</string>

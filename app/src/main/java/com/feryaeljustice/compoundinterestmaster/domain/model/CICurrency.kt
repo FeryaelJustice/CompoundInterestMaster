@@ -4,4 +4,8 @@
 
 package com.feryaeljustice.compoundinterestmaster.domain.model
 
-data class CICurrency(val curName: String, val curSymbol: String)
+data class CICurrency(
+    val curName: String,
+    val curSymbol: String,
+    val currencyCode: String
+)

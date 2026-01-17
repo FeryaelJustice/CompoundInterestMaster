@@ -28,13 +28,14 @@ class LocaleMapper @Inject constructor() {
     suspend fun getCurrencies(): List<CICurrency> = withContext(Dispatchers.IO) {
         cachedCurrencies ?: getAllAvailableLocales()
             .map { it.toCICurrency() }
-            .distinctBy { it.curSymbol }
+            .distinctBy { it.currencyCode }
             .sortedBy { it.curName }
             .also { cachedCurrencies = it }
     }
 
     private fun Currency.toCICurrency(): CICurrency = CICurrency(
         curName = displayName,
-        curSymbol = symbol
+        curSymbol = symbol,
+        currencyCode = currencyCode
     )
 }

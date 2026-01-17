@@ -20,5 +20,6 @@ data class MainUiState(
     val periodicContribution: String = "1200",
     val contributionTiming: ContributionTiming = ContributionTiming.END,
     val result: InterestCalculationResult? = null,
-    val currencies: List<CICurrency> = emptyList()
+    val currencies: List<CICurrency> = emptyList(),
+    val selectedCurrency: CICurrency = CICurrency("Euro", "€", "EUR")
 )

@@ -20,11 +20,11 @@
     <string name="type_required_rate">¿Qué porcentaje de interés necesito?</string>
 
     <!-- Financial Input Fields -->
-    <string name="label_initial_capital">Capital Inicial (€)</string>
-    <string name="label_target_amount">Objetivo de Ahorro (€)</string>
+    <string name="label_initial_capital">Capital Inicial (%1$s)</string>
+    <string name="label_target_amount">Objetivo de Ahorro (%1$s)</string>
     <string name="label_annual_rate">Tasa Anual (%)</string>
     <string name="label_years">Años</string>
-    <string name="label_periodic_contribution">Aportación por Periodo (€)</string>
+    <string name="label_periodic_contribution">Aportación por Periodo (%1$s)</string>
     <string name="label_compounding_frequency">Frecuencia de Capitalización</string>
     <string name="label_contribution_timing">Momento de la Aportación</string>
     <string name="label_calculation_type">¿Qué quieres calcular?</string>

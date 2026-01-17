@@ -50,7 +50,8 @@ fun ResultValueCard(
     accentColor: Color,
     modifier: Modifier = Modifier,
     isCurrency: Boolean = true,
-    suffix: String = ""
+    suffix: String = "",
+    currencySymbol: String = "€"
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -91,7 +92,7 @@ fun ResultValueCard(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = if (isCurrency) formatCurrency(value) else "${String.format(Locale.getDefault(), "%.2f", value)}$suffix",
+                    text = if (isCurrency) formatCurrency(value, currencySymbol) else "${String.format(Locale.getDefault(), "%.2f", value)}$suffix",
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = accentColor
@@ -113,7 +114,8 @@ fun DetailedBreakdownCard(
     totalContributions: Double,
     totalInterest: Double,
     finalValue: Double,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    currencySymbol: String = "€"
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -140,11 +142,11 @@ fun DetailedBreakdownCard(
             }
             Spacer(modifier = Modifier.height(24.dp))
             
-            BreakdownRow(stringResource(R.string.row_initial_capital), initialCapital)
+            BreakdownRow(stringResource(R.string.row_initial_capital), initialCapital, currencySymbol)
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), thickness = 0.5.dp)
-            BreakdownRow(stringResource(R.string.row_contributions), totalContributions)
+            BreakdownRow(stringResource(R.string.row_contributions), totalContributions, currencySymbol)
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), thickness = 0.5.dp)
-            BreakdownRow(stringResource(R.string.row_interest), totalInterest)
+            BreakdownRow(stringResource(R.string.row_interest), totalInterest, currencySymbol)
             
             Spacer(modifier = Modifier.height(24.dp))
             Row(
@@ -159,7 +161,7 @@ fun DetailedBreakdownCard(
                     )
                 )
                 Text(
-                    text = formatCurrency(finalValue),
+                    text = formatCurrency(finalValue, currencySymbol),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary
@@ -171,7 +173,7 @@ fun DetailedBreakdownCard(
 }
 
 @Composable
-private fun BreakdownRow(label: String, value: Double) {
+private fun BreakdownRow(label: String, value: Double, currencySymbol: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
@@ -182,16 +184,26 @@ private fun BreakdownRow(label: String, value: Double) {
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
-            text = formatCurrency(value),
+            text = formatCurrency(value, currencySymbol),
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
             color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
 
-fun formatCurrency(amount: Double): String {
-    val format = NumberFormat.getCurrencyInstance(Locale.GERMANY)
-    return format.format(amount)
+fun formatCurrency(amount: Double, symbol: String): String {
+    val format = NumberFormat.getNumberInstance(Locale.getDefault())
+    format.minimumFractionDigits = 2
+    format.maximumFractionDigits = 2
+    val formattedNumber = format.format(amount)
+    
+    // Posicionamiento básico: si el símbolo es $, suele ir antes. Si es €, suele ir después.
+    // Para simplificar, usaremos el formato local pero inyectando el símbolo.
+    return if (symbol == "$" || symbol == "£") {
+        "$symbol$formattedNumber"
+    } else {
+        "$formattedNumber $symbol"
+    }
 }
 
 @Preview(showBackground = true)

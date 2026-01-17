@@ -53,12 +53,14 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.feryaeljustice.compoundinterestmaster.R
+import com.feryaeljustice.compoundinterestmaster.domain.model.CICurrency
 import com.feryaeljustice.compoundinterestmaster.domain.model.CalculationType
 import com.feryaeljustice.compoundinterestmaster.domain.model.CompoundingFrequency
 import com.feryaeljustice.compoundinterestmaster.domain.model.ContributionTiming
 import com.feryaeljustice.compoundinterestmaster.domain.model.InterestCalculationResult
 import com.feryaeljustice.compoundinterestmaster.ui.components.CalculationTypeSelector
 import com.feryaeljustice.compoundinterestmaster.ui.components.CurrencyInputField
+import com.feryaeljustice.compoundinterestmaster.ui.components.CurrencySelector
 import com.feryaeljustice.compoundinterestmaster.ui.components.DetailedBreakdownCard
 import com.feryaeljustice.compoundinterestmaster.ui.components.FrequencyDropdown
 import com.feryaeljustice.compoundinterestmaster.ui.components.InterestChart
@@ -98,6 +100,7 @@ fun MainScreen(
                 InputForm(
                     uiState = uiState,
                     onCalculationTypeChange = viewModel::onCalculationTypeChange,
+                    onCurrencyChange = viewModel::onCurrencyChange,
                     onInitialCapitalChange = viewModel::onInitialCapitalChange,
                     onAnnualRateChange = viewModel::onAnnualRateChange,
                     onYearsChange = viewModel::onYearsChange,
@@ -123,7 +126,8 @@ fun MainScreen(
                         ResultsSection(
                             result = res,
                             calculationType = uiState.calculationType,
-                            years = uiState.years
+                            years = uiState.years,
+                            currencySymbol = uiState.selectedCurrency.curSymbol
                         )
                     }
                 }
@@ -176,6 +180,7 @@ fun HeaderSection(modifier: Modifier = Modifier) {
 fun InputForm(
     uiState: MainUiState,
     onCalculationTypeChange: (CalculationType) -> Unit,
+    onCurrencyChange: (CICurrency) -> Unit,
     onInitialCapitalChange: (String) -> Unit,
     onAnnualRateChange: (String) -> Unit,
     onYearsChange: (String) -> Unit,
@@ -201,10 +206,16 @@ fun InputForm(
                 onTypeChange = onCalculationTypeChange
             )
 
+            CurrencySelector(
+                selectedCurrency = uiState.selectedCurrency,
+                currencies = uiState.currencies,
+                onCurrencyChange = onCurrencyChange
+            )
+
             CurrencyInputField(
                 value = uiState.initialCapital,
                 onValueChange = onInitialCapitalChange,
-                label = stringResource(R.string.label_initial_capital),
+                label = stringResource(R.string.label_initial_capital, uiState.selectedCurrency.curSymbol),
                 testTag = "initial_capital_input"
             )
 
@@ -213,7 +224,7 @@ fun InputForm(
                 CurrencyInputField(
                     value = uiState.targetAmount,
                     onValueChange = onTargetAmountChange,
-                    label = stringResource(R.string.label_target_amount),
+                    label = stringResource(R.string.label_target_amount, uiState.selectedCurrency.curSymbol),
                     testTag = "target_amount_input"
                 )
             }
@@ -255,7 +266,7 @@ fun InputForm(
                 CurrencyInputField(
                     value = uiState.periodicContribution,
                     onValueChange = onPeriodicContributionChange,
-                    label = stringResource(R.string.label_periodic_contribution),
+                    label = stringResource(R.string.label_periodic_contribution, uiState.selectedCurrency.curSymbol),
                     testTag = "monthly_contribution_input"
                 )
             }
@@ -304,6 +315,7 @@ fun ResultsSection(
     result: InterestCalculationResult,
     calculationType: CalculationType,
     years: String,
+    currencySymbol: String,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -316,7 +328,8 @@ fun ResultsSection(
                     value = result.finalValue,
                     subtitle = stringResource(R.string.result_final_value_subtitle, years.toIntOrNull() ?: 0),
                     icon = Icons.Rounded.Diamond,
-                    accentColor = Color(0xFF3F51B5)
+                    accentColor = Color(0xFF3F51B5),
+                    currencySymbol = currencySymbol
                 )
             }
             CalculationType.TIME_TO_GOAL -> {
@@ -327,7 +340,7 @@ fun ResultsSection(
                     subtitle = stringResource(R.string.type_time_to_goal),
                     icon = Icons.Rounded.Timer,
                     accentColor = Color(0xFF3F51B5),
-                    isCurrency = false
+                    isCurrency = false,
                 )
             }
             CalculationType.REQUIRED_CONTRIBUTION -> {
@@ -336,7 +349,8 @@ fun ResultsSection(
                     value = (result.totalContributions / (result.yearlyBreakdown.size * 12)),
                     subtitle = stringResource(R.string.type_required_contribution),
                     icon = Icons.Rounded.Savings,
-                    accentColor = Color(0xFF3F51B5)
+                    accentColor = Color(0xFF3F51B5),
+                    currencySymbol = currencySymbol
                 )
             }
             CalculationType.REQUIRED_RATE -> {
@@ -347,7 +361,7 @@ fun ResultsSection(
                     icon = Icons.Rounded.Percent,
                     accentColor = Color(0xFF3F51B5),
                     isCurrency = false,
-                    suffix = "%"
+                    suffix = "%",
                 )
             }
         }
@@ -357,14 +371,16 @@ fun ResultsSection(
             value = if (calculationType == CalculationType.REQUIRED_RATE) result.finalValue - result.initialCapital - result.totalContributions else result.totalInterest,
             subtitle = stringResource(R.string.result_interest_subtitle),
             icon = Icons.Rounded.BarChart,
-            accentColor = Color(0xFFE91E63)
+            accentColor = Color(0xFFE91E63),
+            currencySymbol = currencySymbol
         )
 
         DetailedBreakdownCard(
             initialCapital = result.initialCapital,
             totalContributions = result.totalContributions,
             totalInterest = if (calculationType == CalculationType.REQUIRED_RATE) result.finalValue - result.initialCapital - result.totalContributions else result.totalInterest,
-            finalValue = result.finalValue
+            finalValue = result.finalValue,
+            currencySymbol = currencySymbol
         )
 
         InterestChart(yearlyBreakdown = result.yearlyBreakdown.toImmutableList())

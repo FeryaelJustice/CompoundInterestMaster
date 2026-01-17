@@ -7,6 +7,7 @@ package com.feryaeljustice.compoundinterestmaster.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.compoundinterestmaster.data.mapper.LocaleMapper
+import com.feryaeljustice.compoundinterestmaster.domain.model.CICurrency
 import com.feryaeljustice.compoundinterestmaster.domain.model.CalculationType
 import com.feryaeljustice.compoundinterestmaster.domain.model.CompoundingFrequency
 import com.feryaeljustice.compoundinterestmaster.domain.model.ContributionTiming
@@ -42,6 +43,10 @@ class MainViewModel @Inject constructor(
     fun onCalculationTypeChange(value: CalculationType) {
         _uiState.update { it.copy(calculationType = value) }
         calculate()
+    }
+
+    fun onCurrencyChange(value: CICurrency) {
+        _uiState.update { it.copy(selectedCurrency = value) }
     }
 
     fun onInitialCapitalChange(value: String) {
