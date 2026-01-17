@@ -52,4 +52,5 @@
     <string name="freq_biweekly">Bi-Semanalmente</string>
     <string name="freq_monthly">Mensual</string>
     <string name="freq_annually">Anual</string>
+    <string name="vico_cartesian_line_chart_legend">Años (X) y capital final estimado (Y)</string>
 </resources>

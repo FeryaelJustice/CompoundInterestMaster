@@ -6,6 +6,7 @@ package com.feryaeljustice.compoundinterestmaster.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -27,10 +28,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.feryaeljustice.compoundinterestmaster.R
 import com.feryaeljustice.compoundinterestmaster.domain.model.YearlyGrowth
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
@@ -59,21 +62,26 @@ fun InterestChart(
 
     // Cambia estos 2 campos si tu YearlyGrowth usa otros nombres.
     val xValues = remember(yearlyBreakdown) { yearlyBreakdown.map { it.year } }
-    val yValues = remember(yearlyBreakdown) { yearlyBreakdown.map { it.totalInterest } }
+    val yValues = remember(yearlyBreakdown) { yearlyBreakdown.map { it.balance } }
+    val yValues2 = remember(yearlyBreakdown) { yearlyBreakdown.map { it.balanceWithoutInterest } }
+
 
     val modelProducer = remember { CartesianChartModelProducer() }
 
     // Carga dinámica real: cada vez que cambian los datos, se actualiza el modelo del chart.
-    LaunchedEffect(xValues, yValues) {
+    LaunchedEffect(xValues, yValues, yValues2) {
         modelProducer.runTransaction {
             lineSeries {
                 series(x = xValues, y = yValues)
+                series(x = xValues, y = yValues2)
             }
         }
     }
 
     val lineColor = Color(0xFFE91E63)
+    val lineColor2 = Color(0xFF5137F1)
     val areaTop = lineColor.copy(alpha = 0.30f)
+    val areaTop2 = lineColor.copy(alpha = 0.20f)
     val areaBottom = Color.Transparent
 
     val line = LineCartesianLayer.rememberLine(
@@ -95,9 +103,28 @@ fun InterestChart(
             )
         )
     )
+    val line2 = LineCartesianLayer.rememberLine(
+        fill = LineCartesianLayer.LineFill.single(Fill(lineColor2)),
+        areaFill = LineCartesianLayer.AreaFill.single(
+            fill = Fill(
+                Brush.verticalGradient(
+                    colors = listOf(areaTop, areaTop2)
+                )
+            )
+        ),
+        pointProvider = LineCartesianLayer.PointProvider.single(
+            point = LineCartesianLayer.Point(
+                component = rememberShapeComponent(
+                    fill = Fill(lineColor2),
+                    shape = RectangleShape
+                ),
+                size = 8.dp
+            )
+        )
+    )
 
     val layer = rememberLineCartesianLayer(
-        lineProvider = LineCartesianLayer.LineProvider.series(line)
+        lineProvider = LineCartesianLayer.LineProvider.series(line,line2)
     )
 
     val yFormatter = remember {
@@ -161,7 +188,7 @@ fun InterestChart(
             }
 
             // “Panel” sutil para que el chart quede integrado y no flotando raro
-            androidx.compose.foundation.layout.Box(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(220.dp)
@@ -184,7 +211,7 @@ fun InterestChart(
             }
 
             Text(
-                text = "Años (X) y capital final estimado (Y)",
+                text = stringResource(R.string.vico_cartesian_line_chart_legend),
                 style = MaterialTheme.typography.bodySmall.copy(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
