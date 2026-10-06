@@ -15,7 +15,7 @@ Este documento detalla el plan para fortalecer la calidad del software mediante 
     *   `FinancialInputFieldsTest`: Validar que los campos de texto formateen correctamente la moneda y los porcentajes.
     *   `FrequencyDropdownTest`: Asegurar que el selector de frecuencia actualice el estado correctamente.
 *   **Screen Level:**
-    *   `MainScreenTest`: Verificar que los resultados se muestren/oculten correctamente al presionar el botón de calcular.
+    *   `MainScreenTest`: Verificar que los resultados se muestren u oculten correctamente al pulsar el botón Calcular.
 
 ### C. End-to-End (E2E) y Journeys
 *   Implementación de **User Journeys** en `androidTest/java/com/.../journeys/`.
