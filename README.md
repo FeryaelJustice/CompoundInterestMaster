@@ -4,7 +4,7 @@
 
   # Compound Interest Master
 
-  **Calculadora Financiera Moderna & Proyector de Interés Compuesto para Android**
+  **Calculadora financiera moderna y herramienta de proyección del interés compuesto para Android**
 
   [![Kotlin](https://img.shields.io/badge/Kotlin-2.4.10-blue.svg?logo=kotlin)](https://kotlinlang.org)
   [![Android](https://img.shields.io/badge/Android-SDK%2024%2B%20(Target%2037)-3DDC84.svg?logo=android)](https://developer.android.com)
@@ -45,9 +45,9 @@ La aplicación permite a los usuarios proyectar metas financieras en tiempo real
 - **¿Qué porcentaje de interés necesito? (Required Rate)**: Identificación de la tasa anual requerida para lograr el objetivo en un plazo fijado.
 
 ### ⚙️ Personalización Financiera Avanzada
-- **Frecuencia de Capitalización**: Soporte para periodos Semanales (52x), Bi-semanales (26x), Mensuales (12x) y Anuales (1x).
-- **Momento de la Aportación**: Configuración al inicio (*Beginning*) o al final (*End*) de cada periodo.
-- **Multi-divisa Dinámica**: Soporte y formateo localizado automático (EUR €, USD $, GBP £, etc.).
+- **Frecuencia de capitalización**: admite periodos semanales (52x), bisemanales (26x), mensuales (12x) y anuales (1x).
+- **Momento de la aportación**: configuración al inicio (*Beginning*) o al final (*End*) de cada periodo.
+- **Soporte multidivisa**: formato localizado automático para distintas monedas (EUR €, USD $, GBP £, etc.).
 
 ### 📊 Análisis Visual & Reportes
 - **Gráficos Interactivos con Vico**: Curvas dinámicas de crecimiento proyectado año a año.
@@ -81,7 +81,7 @@ El proyecto sigue una arquitectura **Clean Architecture + MVVM (Model-View-ViewM
 
 - **Unidirectional Data Flow (UDF)**: La vista emite eventos de usuario y se recompone ante cambios inmutables de `MainUiState`.
 - **Casos de Uso Aislados**: Lógica matemática pura independiente del framework de Android para mayor velocidad de ejecución y cobertura de pruebas.
-- **Inyección de Dependencias**: Gestión con **Hilt** acelerado con **KSP (Kotlin Symbol Processing)**.
+- **Inyección de dependencias**: gestión con **Hilt** y procesamiento mediante **KSP (Kotlin Symbol Processing)**.
 
 ---
 
