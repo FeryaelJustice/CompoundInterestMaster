@@ -11,14 +11,14 @@ plugins {
 
 android {
     namespace = "com.feryaeljustice.compoundinterestmaster"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.feryaeljustice.compoundinterestmaster"
         minSdk = 24
-        targetSdk = 36
-        versionCode = 3
-        versionName = "1.0.2"
+        targetSdk = 37
+        versionCode = 4
+        versionName = "1.1.0"
 
         testInstrumentationRunner = "com.feryaeljustice.compoundinterestmaster.HiltTestRunner"
     }
