@@ -2,12 +2,42 @@
  * Copyright (c) 2026 Feryael Justice. Todos los derechos reservados.
  */
 
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.dagger.hilt.android)
     alias(libs.plugins.google.devtools.ksp)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.firebase.crashlytics)
 }
+
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) {
+        load(FileInputStream(file))
+    }
+}
+
+val testAdmobAppId = "ca-app-pub-3940256099942544~3347511713"
+val testInterstitialAdUnitId = "ca-app-pub-3940256099942544/1033173712"
+
+val debugAdmobAppId = localProperties.getProperty("admob.appId.test")?.trim()
+    ?.takeIf { it.isNotEmpty() } ?: testAdmobAppId
+
+val releaseAdmobAppId = localProperties.getProperty("admob.appId.production")?.trim()
+    ?.takeIf { it.isNotEmpty() }
+    ?: localProperties.getProperty("admob.appId")?.trim()
+    ?.takeIf { it.isNotEmpty() } ?: testAdmobAppId
+
+val debugInterstitialAdUnitId = localProperties.getProperty("admob.interstitial.testAdUnitId")?.trim()
+    ?.takeIf { it.isNotEmpty() } ?: testInterstitialAdUnitId
+
+val releaseInterstitialAdUnitId = localProperties.getProperty("admob.interstitial.productionAdUnitId")?.trim()
+    ?.takeIf { it.isNotEmpty() } ?: ""
 
 android {
     namespace = "com.feryaeljustice.compoundinterestmaster"
@@ -17,10 +47,14 @@ android {
         applicationId = "com.feryaeljustice.compoundinterestmaster"
         minSdk = 24
         targetSdk = 37
-        versionCode = 4
-        versionName = "1.1.0"
+        versionCode = 5
+        versionName = "1.2.0"
 
         testInstrumentationRunner = "com.feryaeljustice.compoundinterestmaster.HiltTestRunner"
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     buildTypes {
@@ -28,11 +62,23 @@ android {
             isMinifyEnabled = false
             isShrinkResources = false
             isDebuggable = true
+            manifestPlaceholders["admobAppId"] = debugAdmobAppId
+            buildConfigField(
+                "String",
+                "ADMOB_INTERSTITIAL_AD_UNIT_ID",
+                "\"${debugInterstitialAdUnitId.replace("\"", "\\\"")}\""
+            )
         }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             isDebuggable = false
+            manifestPlaceholders["admobAppId"] = releaseAdmobAppId
+            buildConfigField(
+                "String",
+                "ADMOB_INTERSTITIAL_AD_UNIT_ID",
+                "\"${releaseInterstitialAdUnitId.replace("\"", "\\\"")}\""
+            )
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -89,4 +135,11 @@ dependencies {
 
     implementation(libs.vico.compose)
     implementation(libs.vico.compose.m3)
+    implementation(libs.play.services.ads)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 }
+

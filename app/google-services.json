@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "993776833798",
+    "project_id": "interes-compuesto-calculadora",
+    "storage_bucket": "interes-compuesto-calculadora.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:993776833798:android:377c8920ff03b5dd517a87",
+        "android_client_info": {
+          "package_name": "com.feryaeljustice.compoundinterestmaster"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB9FVbWap2RnEoDsU-YqPhE6mFk7adXeOU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

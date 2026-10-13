@@ -4,8 +4,13 @@
 
 package com.feryaeljustice.compoundinterestmaster.presentation
 
+import com.feryaeljustice.compoundinterestmaster.data.mapper.LocaleMapper
 import com.feryaeljustice.compoundinterestmaster.domain.model.CompoundingFrequency
 import com.feryaeljustice.compoundinterestmaster.domain.usecase.CalculateCompoundInterestUseCase
+import com.feryaeljustice.compoundinterestmaster.domain.usecase.CalculateFutureValueUseCase
+import com.feryaeljustice.compoundinterestmaster.domain.usecase.CalculateRequiredContributionUseCase
+import com.feryaeljustice.compoundinterestmaster.domain.usecase.CalculateRequiredRateUseCase
+import com.feryaeljustice.compoundinterestmaster.domain.usecase.CalculateTimeToGoalUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -21,15 +26,42 @@ import org.junit.Test
 class MainViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
+    private lateinit var localeMapper: LocaleMapper
     private lateinit var useCase: CalculateCompoundInterestUseCase
     private lateinit var viewModel: MainViewModel
 
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        useCase = CalculateCompoundInterestUseCase()
-        viewModel = MainViewModel(useCase)
+        localeMapper = LocaleMapper()
+        val futureValueUseCase = CalculateFutureValueUseCase()
+        val timeToGoalUseCase = CalculateTimeToGoalUseCase()
+        val requiredContributionUseCase = CalculateRequiredContributionUseCase(futureValueUseCase)
+        val requiredRateUseCase = CalculateRequiredRateUseCase(futureValueUseCase)
+
+        useCase = CalculateCompoundInterestUseCase(
+            calculateFutureValueUseCase = futureValueUseCase,
+            calculateTimeToGoalUseCase = timeToGoalUseCase,
+            calculateRequiredContributionUseCase = requiredContributionUseCase,
+            calculateRequiredRateUseCase = requiredRateUseCase
+        )
+        val fakeAnalyticsManager = object : com.feryaeljustice.compoundinterestmaster.domain.manager.AnalyticsManager {
+            override fun logEvent(name: String, params: android.os.Bundle?) {}
+            override fun logCalculationPerformed(
+                calculationType: String,
+                initialCapital: Double,
+                annualRate: Double,
+                years: Int,
+                currencyCode: String
+            ) {}
+            override fun logCalculationTypeSelected(calculationType: String) {}
+            override fun logCurrencySelected(currencyCode: String) {}
+            override fun logAdImpression(adUnitId: String, adType: String) {}
+        }
+
+        viewModel = MainViewModel(localeMapper, useCase, fakeAnalyticsManager)
     }
+
 
     @After
     fun tearDown() {
@@ -39,12 +71,11 @@ class MainViewModelTest {
     @Test
     fun `initial state should match MainUiState defaults and trigger calculation`() = runTest {
         testDispatcher.scheduler.advanceUntilIdle()
-        
+
         val state = viewModel.uiState.value
         assertEquals("10000", state.initialCapital)
         assertEquals("2", state.annualRate)
         assertEquals("2", state.years)
-        // Verify initial calculation result (approximate values for 10k at 2% for 2 years with 1200 monthly)
         assertEquals(39766.57, state.result?.finalValue ?: 0.0, 0.01)
     }
 
@@ -60,8 +91,8 @@ class MainViewModelTest {
         viewModel.onAnnualRateChange("10")
         viewModel.onYearsChange("1")
         viewModel.onCompoundingFrequencyChange(CompoundingFrequency.ANNUALLY)
-        viewModel.onMonthlyContributionChange("0")
-        
+        viewModel.onPeriodicContributionChange("0")
+
         viewModel.calculate()
         testDispatcher.scheduler.advanceUntilIdle()
 

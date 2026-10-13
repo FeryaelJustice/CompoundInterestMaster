@@ -53,9 +53,36 @@ Basado en la ejecución de los planes estratégicos del proyecto:
 - **Instrumentation**: Pruebas de componentes de Compose.
 - **Hilt Test Runner**: Configuración de entorno de pruebas con inyección de dependencias.
 
+### Fase 8: Integración de Monetización con Google AdMob
+- **AdMob SDK 25.5.0**: Adopción de la versión más reciente y estable en Version Catalogs (`libs.versions.toml`).
+- **Clean Architecture & Hilt**: Definición de la interfaz `AdManager` en capa de dominio e implementación de `AdMobManager` en `data/manager`, desacoplados mediante inyección con Hilt (`AdModule`).
+- **Gestión Segura de Identificadores**: Configuración en `app/build.gradle.kts` y `local.properties` con placeholders de manifiesto para `APPLICATION_ID` y campo de compilación `ADMOB_INTERSTITIAL_AD_UNIT_ID`. Configuración por defecto de IDs oficiales de prueba de Google para prevenir tráfico no válido y suspensión de cuenta.
+- **Experiencia de Usuario y Políticas de Play Store**: Regulación de frecuencia y periodo de enfriamiento (cooldown) para anuncios intersticiales, respetando el ciclo de vida y Better Ads Standards.
+- **Incremento de Versión**: Subida a `versionCode = 5` y `versionName = "1.2.0"`.
+- **Verificación Completa**: Ejecución exitosa de pruebas unitarias y generación validada de `assembleDebug` y `assembleRelease` con R8.
+
+### Fase 9: Integración de Firebase y Google Analytics
+- **Version Catalog & Plugins**: Adopción de `googleServices = "4.4.2"` y `firebaseBom = "35.0.0"`. Aplicación del plugin `com.google.gms.google-services` tanto en el raíz como en el módulo `app`.
+- **Google Services JSON**: Ubicación y vinculación correcta de `app/google-services.json` para el paquete `com.feryaeljustice.compoundinterestmaster`.
+- **Inicialización y Arquitectura Limpia**:
+  - Inicialización explícita y segura de `FirebaseApp` en `CompoundInterestApplication`.
+  - Definición de la interfaz `AnalyticsManager` en la capa de dominio.
+  - Implementación de `FirebaseAnalyticsManager` en `data/manager`, inyectada mediante Hilt con `AnalyticsModule`.
+- **Instrumentación de Eventos en la App**:
+  - Registro de evento `calculation_performed` con capital inicial, tasa, años y divisa en cada cálculo.
+  - Registro de eventos de interacción de usuario: `calculation_type_selected` y `currency_selected`.
+  - Registro de impresión de anuncios: `ad_impression_custom` sincronizado con la presentación de intersticiales en `AdMobManager`.
+- **Verificación Completa**: Procesamiento exitoso de recursos Google Services (`processDebugGoogleServices`, `processReleaseGoogleServices`), pruebas unitarias superadas al 100% y builds `assembleDebug` y `assembleRelease` generados con éxito.
+
+
 ## 🛠️ Stack de IA y Herramientas
 - **Android Studio Ladybug (Gemini/Agentic Features)**.
 - **KSP (Kotlin Symbol Processing)** para optimización de agentes de generación de código.
+- **Google Mobile Ads SDK 25.5.0**.
+- **Firebase BoM 35.0.0** y **Firebase Analytics**.
+- **Google Services Gradle Plugin 4.4.2**.
 
 ---
 *Este registro es actualizado dinámicamente para reflejar la evolución del sistema.*
+
+

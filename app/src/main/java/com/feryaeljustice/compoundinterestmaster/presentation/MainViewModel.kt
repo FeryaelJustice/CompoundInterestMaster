@@ -7,6 +7,7 @@ package com.feryaeljustice.compoundinterestmaster.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.compoundinterestmaster.data.mapper.LocaleMapper
+import com.feryaeljustice.compoundinterestmaster.domain.manager.AnalyticsManager
 import com.feryaeljustice.compoundinterestmaster.domain.model.CICurrency
 import com.feryaeljustice.compoundinterestmaster.domain.model.CalculationType
 import com.feryaeljustice.compoundinterestmaster.domain.model.CompoundingFrequency
@@ -22,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val localeMapper: LocaleMapper,
-    private val calculateCompoundInterestUseCase: CalculateCompoundInterestUseCase
+    private val calculateCompoundInterestUseCase: CalculateCompoundInterestUseCase,
+    private val analyticsManager: AnalyticsManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -42,12 +44,15 @@ class MainViewModel @Inject constructor(
 
     fun onCalculationTypeChange(value: CalculationType) {
         _uiState.update { it.copy(calculationType = value) }
+        analyticsManager.logCalculationTypeSelected(value.name)
         calculate()
     }
 
     fun onCurrencyChange(value: CICurrency) {
         _uiState.update { it.copy(selectedCurrency = value) }
+        analyticsManager.logCurrencySelected(value.currencyCode)
     }
+
 
     fun onInitialCapitalChange(value: String) {
         _uiState.update { it.copy(initialCapital = value) }
@@ -96,6 +101,15 @@ class MainViewModel @Inject constructor(
             contributionTiming = state.contributionTiming
         )
 
+        analyticsManager.logCalculationPerformed(
+            calculationType = state.calculationType.name,
+            initialCapital = initialCapital,
+            annualRate = annualRate,
+            years = years,
+            currencyCode = state.selectedCurrency.currencyCode
+        )
+
         _uiState.update { it.copy(result = result) }
     }
 }
+

@@ -74,7 +74,8 @@ import kotlinx.collections.immutable.toImmutableList
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
-    viewModel: MainViewModel = hiltViewModel()
+    viewModel: MainViewModel = hiltViewModel(),
+    onTriggerInterstitial: (() -> Unit)? = null
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -108,7 +109,10 @@ fun MainScreen(
                     onFrequencyChange = viewModel::onCompoundingFrequencyChange,
                     onPeriodicContributionChange = viewModel::onPeriodicContributionChange,
                     onTimingChange = viewModel::onContributionTimingChange,
-                    onCalculate = viewModel::calculate
+                    onCalculate = {
+                        viewModel.calculate()
+                        onTriggerInterstitial?.invoke()
+                    }
                 )
 
                 // Animated Results Section
