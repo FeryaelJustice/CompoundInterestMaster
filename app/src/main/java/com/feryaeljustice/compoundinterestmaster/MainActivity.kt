@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        adManager.initialize()
+        adManager.requestConsentAndInitialize(this)
 
         setContent {
             CompoundInterestMasterTheme {

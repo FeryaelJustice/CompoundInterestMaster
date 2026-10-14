@@ -59,7 +59,17 @@ class MainViewModelTest {
             override fun logAdImpression(adUnitId: String, adType: String) {}
         }
 
-        viewModel = MainViewModel(localeMapper, useCase, fakeAnalyticsManager)
+        val fakeCrashlyticsManager = object : com.feryaeljustice.compoundinterestmaster.domain.manager.CrashlyticsManager {
+            override fun recordException(throwable: Throwable) {}
+            override fun log(message: String) {}
+            override fun setCustomKey(key: String, value: String) {}
+            override fun setCustomKey(key: String, value: Boolean) {}
+            override fun setCustomKey(key: String, value: Double) {}
+            override fun setCustomKey(key: String, value: Int) {}
+            override fun setUserId(userId: String) {}
+        }
+
+        viewModel = MainViewModel(localeMapper, useCase, fakeAnalyticsManager, fakeCrashlyticsManager)
     }
 
 

@@ -25,3 +25,7 @@
 -keep interface com.google.android.gms.ads.** { *; }
 -keep class com.google.ads.mediation.** { *; }
 -keep interface com.google.ads.mediation.** { *; }
+
+# User Messaging Platform (UMP)
+-keep class com.google.android.ump.** { *; }
+-keep interface com.google.android.ump.** { *; }

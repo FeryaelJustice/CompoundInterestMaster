@@ -136,6 +136,7 @@ dependencies {
     implementation(libs.vico.compose)
     implementation(libs.vico.compose.m3)
     implementation(libs.play.services.ads)
+    implementation(libs.user.messaging.platform)
 
     // Firebase
     implementation(platform(libs.firebase.bom))

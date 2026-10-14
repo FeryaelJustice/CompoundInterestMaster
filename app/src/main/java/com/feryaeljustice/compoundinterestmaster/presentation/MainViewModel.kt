@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.feryaeljustice.compoundinterestmaster.data.mapper.LocaleMapper
 import com.feryaeljustice.compoundinterestmaster.domain.manager.AnalyticsManager
+import com.feryaeljustice.compoundinterestmaster.domain.manager.CrashlyticsManager
 import com.feryaeljustice.compoundinterestmaster.domain.model.CICurrency
 import com.feryaeljustice.compoundinterestmaster.domain.model.CalculationType
 import com.feryaeljustice.compoundinterestmaster.domain.model.CompoundingFrequency
@@ -24,7 +25,8 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val localeMapper: LocaleMapper,
     private val calculateCompoundInterestUseCase: CalculateCompoundInterestUseCase,
-    private val analyticsManager: AnalyticsManager
+    private val analyticsManager: AnalyticsManager,
+    private val crashlyticsManager: CrashlyticsManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -45,12 +47,14 @@ class MainViewModel @Inject constructor(
     fun onCalculationTypeChange(value: CalculationType) {
         _uiState.update { it.copy(calculationType = value) }
         analyticsManager.logCalculationTypeSelected(value.name)
+        crashlyticsManager.setCustomKey("calculation_type", value.name)
         calculate()
     }
 
     fun onCurrencyChange(value: CICurrency) {
         _uiState.update { it.copy(selectedCurrency = value) }
         analyticsManager.logCurrencySelected(value.currencyCode)
+        crashlyticsManager.setCustomKey("currency_code", value.currencyCode)
     }
 
 
@@ -89,6 +93,10 @@ class MainViewModel @Inject constructor(
         val years = state.years.toIntOrNull() ?: 0
         val targetAmount = state.targetAmount.toDoubleOrNull() ?: 0.0
         val periodicContribution = state.periodicContribution.toDoubleOrNull() ?: 0.0
+
+        crashlyticsManager.log(
+            "Executing calculation: type=${state.calculationType.name}, capital=$initialCapital, rate=$annualRate, years=$years"
+        )
 
         val result = calculateCompoundInterestUseCase(
             calculationType = state.calculationType,

@@ -74,13 +74,30 @@ Basado en la ejecución de los planes estratégicos del proyecto:
   - Registro de impresión de anuncios: `ad_impression_custom` sincronizado con la presentación de intersticiales en `AdMobManager`.
 - **Verificación Completa**: Procesamiento exitoso de recursos Google Services (`processDebugGoogleServices`, `processReleaseGoogleServices`), pruebas unitarias superadas al 100% y builds `assembleDebug` y `assembleRelease` generados con éxito.
 
+### Fase 10: Integración de User Messaging Platform (UMP 4.0.0) y Firebase Crashlytics
+- **User Messaging Platform (UMP SDK 4.0.0)**:
+  - Adopción de `com.google.android.ump:user-messaging-platform:4.0.0` mediante Version Catalog (`libs.versions.toml`).
+  - Extensión de la interfaz `AdManager` con métodos para solicitud de consentimiento (`requestConsentAndInitialize`), consulta de permisos (`canRequestAds`), verificación de obligatoriedad de opciones de privacidad (`isPrivacyOptionsRequired`) y presentación de opciones de privacidad (`showPrivacyOptions`).
+  - Orquestación en `AdMobManager`: inicialización segura de anuncios condicionada al consentimiento de UMP, soporte para consentimientos previos en arranque y control estricto de no emitir solicitudes sin consentimiento previo.
+  - Vinculación en `MainActivity` para solicitar consentimiento y desplegar formularios reglamentarios de AdMob al iniciar la app.
+  - Reglas de preservación añadidas en `proguard-rules.pro` para evitar ofuscación no deseada en compilaciones de producción.
+- **Firebase Crashlytics en Producción**:
+  - Verificación y consolidación de dependencias en Version Catalog (`firebaseCrashlyticsPlugin = "3.0.8"`, `firebase-crashlytics` bajo el BoM de Firebase 35.0.0).
+  - Creación de interfaz de dominio `CrashlyticsManager` e implementación en `data/manager/FirebaseCrashlyticsManager`, inyectada con Hilt a través de `CrashlyticsModule`.
+  - Instrumentación activa en toda la aplicación:
+    - `CompoundInterestApplication`: registro de arranque de app y configuración de claves personalizadas de versión y build.
+    - `MainViewModel`: registro de trazas de diagnóstico (breadcrumbs) y claves personalizadas por cálculo, tipo y divisa.
+    - `AdMobManager`: registro de errores de carga y muestra de anuncios, y registro de fallos en formularios y solicitudes UMP.
+  - Actualización de pruebas unitarias con fakes para garantizar integridad en testing.
+- **Verificación Completa**: Ejecución exitosa de `test` (100% aprobado), empaquetado validado en `assembleDebug` y compilación optimizada con R8 y mapping de Crashlytics en `assembleRelease`.
 
 ## 🛠️ Stack de IA y Herramientas
 - **Android Studio Ladybug (Gemini/Agentic Features)**.
 - **KSP (Kotlin Symbol Processing)** para optimización de agentes de generación de código.
 - **Google Mobile Ads SDK 25.5.0**.
-- **Firebase BoM 35.0.0** y **Firebase Analytics**.
-- **Google Services Gradle Plugin 4.4.2**.
+- **Google User Messaging Platform (UMP) SDK 4.0.0**.
+- **Firebase BoM 35.0.0**, **Firebase Analytics** y **Firebase Crashlytics**.
+- **Google Services Gradle Plugin 4.5.0** y **Firebase Crashlytics Gradle Plugin 3.0.8**.
 
 ---
 *Este registro es actualizado dinámicamente para reflejar la evolución del sistema.*

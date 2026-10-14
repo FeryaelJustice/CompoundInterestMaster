@@ -12,6 +12,7 @@ import android.util.Log
 import com.feryaeljustice.compoundinterestmaster.BuildConfig
 import com.feryaeljustice.compoundinterestmaster.domain.manager.AdManager
 import com.feryaeljustice.compoundinterestmaster.domain.manager.AnalyticsManager
+import com.feryaeljustice.compoundinterestmaster.domain.manager.CrashlyticsManager
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.FullScreenContentCallback
@@ -19,6 +20,10 @@ import com.google.android.gms.ads.LoadAdError
 import com.google.android.gms.ads.MobileAds
 import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import com.google.android.ump.ConsentDebugSettings
+import com.google.android.ump.ConsentInformation
+import com.google.android.ump.ConsentRequestParameters
+import com.google.android.ump.UserMessagingPlatform
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,15 +36,16 @@ import javax.inject.Singleton
 @Singleton
 class AdMobManager @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val analyticsManager: AnalyticsManager
+    private val analyticsManager: AnalyticsManager,
+    private val crashlyticsManager: CrashlyticsManager
 ) : AdManager {
 
     private val adScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val mainHandler = Handler(Looper.getMainLooper())
 
-
     private var interstitialAd: InterstitialAd? = null
     private val isLoading = AtomicBoolean(false)
+    private val isMobileAdsInitialized = AtomicBoolean(false)
 
     private val interstitialAdUnitId = BuildConfig.ADMOB_INTERSTITIAL_AD_UNIT_ID
 
@@ -49,15 +55,108 @@ class AdMobManager @Inject constructor(
 
     companion object {
         private const val TAG = "AdMobManager"
-        private const val MIN_COOLDOWN_MILLIS = 45_000L // 45 segundos mínimos entre intersticiales
-        private const val REQUIRED_ACTIONS_FOR_AD = 2   // Mínimo de cálculos antes de sugerir un anuncio
+        private const val MIN_COOLDOWN_MILLIS = 45_000L // 45 segundos minimos entre intersticiales
+        private const val REQUIRED_ACTIONS_FOR_AD = 2   // Minimo de calculos antes de sugerir un anuncio
     }
 
     override fun initialize() {
+        if (canRequestAds()) {
+            initializeMobileAds()
+        } else {
+            Log.d(TAG, "AdMob initialize pospuesto: pendiente de consentimiento UMP.")
+        }
+    }
+
+    override fun requestConsentAndInitialize(
+        activity: Activity,
+        onConsentComplete: (() -> Unit)?
+    ) {
+        val consentInformation = UserMessagingPlatform.getConsentInformation(activity)
+
+        val paramsBuilder = ConsentRequestParameters.Builder()
+            .setTagForUnderAgeOfConsent(false)
+
+        if (BuildConfig.DEBUG) {
+            // En modo depuracion se forza la geografia EEA para que Google simule conexion europea y despliegue el formulario
+            val debugSettings = ConsentDebugSettings.Builder(activity)
+                .setDebugGeography(ConsentDebugSettings.DebugGeography.DEBUG_GEOGRAPHY_EEA)
+                .build()
+            paramsBuilder.setConsentDebugSettings(debugSettings)
+        }
+
+        val params = paramsBuilder.build()
+
+        Log.i(
+            TAG,
+            "UMP Iniciando solicitud de consentimiento. canRequestAds=${consentInformation.canRequestAds()}, consentStatus=${consentInformation.consentStatus}"
+        )
+
+        // Si ya contabamos con consentimiento otorgado de una sesion previa, inicializamos sin demora
+        if (consentInformation.canRequestAds()) {
+            initializeMobileAds()
+        }
+
+        consentInformation.requestConsentInfoUpdate(
+            activity,
+            params,
+            {
+                Log.i(
+                    TAG,
+                    "UMP Info actualizada: formAvailable=${consentInformation.isConsentFormAvailable}, consentStatus=${consentInformation.consentStatus}, requirementStatus=${consentInformation.privacyOptionsRequirementStatus}"
+                )
+
+                UserMessagingPlatform.loadAndShowConsentFormIfRequired(activity) { formError ->
+                    if (formError != null) {
+                        Log.w(
+                            TAG,
+                            "UMP Error en formulario de consentimiento: Code=${formError.errorCode}, Msg=${formError.message}"
+                        )
+                        crashlyticsManager.log("UMP FormError: ${formError.errorCode}: ${formError.message}")
+                    } else {
+                        Log.i(
+                            TAG,
+                            "UMP Formulario completado o no requerido. canRequestAds=${consentInformation.canRequestAds()}"
+                        )
+                    }
+
+                    if (consentInformation.canRequestAds()) {
+                        initializeMobileAds()
+                    }
+                    onConsentComplete?.invoke()
+                }
+            },
+            { requestConsentError ->
+                Log.w(
+                    TAG,
+                    "UMP Error al actualizar info de consentimiento: Code=${requestConsentError.errorCode}, Msg=${requestConsentError.message}"
+                )
+                crashlyticsManager.log(
+                    "UMP RequestError: ${requestConsentError.errorCode}: ${requestConsentError.message}"
+                )
+                if (consentInformation.canRequestAds()) {
+                    initializeMobileAds()
+                }
+                onConsentComplete?.invoke()
+            }
+        )
+    }
+
+    override fun resetConsent() {
+        val consentInformation = UserMessagingPlatform.getConsentInformation(context)
+        consentInformation.reset()
+        Log.i(TAG, "UMP Consentimiento reseteado correctamente para pruebas.")
+    }
+
+    private fun initializeMobileAds() {
+        if (!isMobileAdsInitialized.compareAndSet(false, true)) {
+            return
+        }
+
         adScope.launch(Dispatchers.IO) {
             try {
                 MobileAds.initialize(context) { status ->
                     Log.d(TAG, "AdMob inicializado correctamente: ${status.adapterStatusMap}")
+                    crashlyticsManager.log("AdMob MobileAds initialized successfully")
                 }
                 mainHandler.post {
                     if (interstitialAdUnitId.isNotBlank()) {
@@ -66,13 +165,46 @@ class AdMobManager @Inject constructor(
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error inicializando AdMob MobileAds", e)
+                crashlyticsManager.recordException(e)
             }
         }
     }
 
+    override fun showPrivacyOptions(
+        activity: Activity,
+        onDismissed: (() -> Unit)?
+    ) {
+        UserMessagingPlatform.showPrivacyOptionsForm(activity) { formError ->
+            if (formError != null) {
+                Log.w(
+                    TAG,
+                    "Error mostrando opciones de privacidad UMP: ${formError.errorCode} - ${formError.message}"
+                )
+                crashlyticsManager.log("UMP PrivacyOptions Error: ${formError.errorCode}: ${formError.message}")
+            }
+            onDismissed?.invoke()
+        }
+    }
+
+    override fun isPrivacyOptionsRequired(): Boolean {
+        val consentInformation = UserMessagingPlatform.getConsentInformation(context)
+        return consentInformation.privacyOptionsRequirementStatus ==
+                ConsentInformation.PrivacyOptionsRequirementStatus.REQUIRED
+    }
+
+    override fun canRequestAds(): Boolean {
+        val consentInformation = UserMessagingPlatform.getConsentInformation(context)
+        return consentInformation.canRequestAds()
+    }
+
     override fun loadInterstitial() {
+        if (!canRequestAds()) {
+            Log.d(TAG, "Omitiendo carga de anuncio: consentimiento UMP aun no disponible.")
+            return
+        }
+
         if (interstitialAdUnitId.isBlank()) {
-            Log.d(TAG, "AdMob Interstitial AdUnitId está vacío. Omitiendo carga.")
+            Log.d(TAG, "AdMob Interstitial AdUnitId esta vacio. Omitiendo carga.")
             return
         }
 
@@ -82,7 +214,7 @@ class AdMobManager @Inject constructor(
         }
 
         if (!isLoading.compareAndSet(false, true)) {
-            Log.d(TAG, "La carga del intersticial ya está en curso.")
+            Log.d(TAG, "La carga del intersticial ya esta en curso.")
             return
         }
 
@@ -103,6 +235,7 @@ class AdMobManager @Inject constructor(
 
                     override fun onAdFailedToLoad(loadAdError: LoadAdError) {
                         Log.w(TAG, "Fallo al cargar intersticial: ${loadAdError.message} (Code: ${loadAdError.code})")
+                        crashlyticsManager.log("Interstitial load failed: ${loadAdError.code} - ${loadAdError.message}")
                         interstitialAd = null
                         isLoading.set(false)
                     }
@@ -117,7 +250,7 @@ class AdMobManager @Inject constructor(
         onAdDismissed: (() -> Unit)?
     ) {
         if (activity.isFinishing || activity.isDestroyed) {
-            Log.w(TAG, "La actividad ya no está en estado válido para mostrar el anuncio.")
+            Log.w(TAG, "La actividad ya no esta en estado valido para mostrar el anuncio.")
             onAdDismissed?.invoke()
             return
         }
@@ -127,7 +260,10 @@ class AdMobManager @Inject constructor(
             calculationCounter++
             val timeSinceLastAd = currentTime - lastAdShowTimestamp
             if (calculationCounter < REQUIRED_ACTIONS_FOR_AD || timeSinceLastAd < MIN_COOLDOWN_MILLIS) {
-                Log.d(TAG, "Frecuencia controlada: cálculos=$calculationCounter, tiempo transcurrido=${timeSinceLastAd}ms. Omitiendo anuncio.")
+                Log.d(
+                    TAG,
+                    "Frecuencia controlada: calculos=$calculationCounter, tiempo transcurrido=${timeSinceLastAd}ms. Omitiendo anuncio."
+                )
                 onAdDismissed?.invoke()
                 return
             }
@@ -147,6 +283,7 @@ class AdMobManager @Inject constructor(
 
                 override fun onAdFailedToShowFullScreenContent(adError: AdError) {
                     Log.w(TAG, "Fallo al mostrar intersticial: ${adError.message}")
+                    crashlyticsManager.log("Interstitial show failed: ${adError.code} - ${adError.message}")
                     interstitialAd = null
                     onAdDismissed?.invoke()
                     loadInterstitial()
@@ -159,12 +296,11 @@ class AdMobManager @Inject constructor(
                 }
             }
 
-
             mainHandler.post {
                 currentAd.show(activity)
             }
         } else {
-            Log.d(TAG, "Intersticial no estaba listo al solicitar mostrar. Cargando para la próxima.")
+            Log.d(TAG, "Intersticial no estaba listo al solicitar mostrar. Cargando para la proxima.")
             loadInterstitial()
             onAdDismissed?.invoke()
         }
